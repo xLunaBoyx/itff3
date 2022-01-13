@@ -45,7 +45,7 @@
 <!-- 여기까지 nav 입니다. -->
 
 
-<section class="ink_board guest_mode" style="padding-bottom: 0">
+<section class="ink_board guest_mode" style="padding-bottom: 20px;">
 <!-- 해당 페이지 큰 글씨 -->
 <div class="sub_title_wrap">
 	<div class="container">

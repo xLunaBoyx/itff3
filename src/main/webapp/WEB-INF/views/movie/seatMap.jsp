@@ -78,7 +78,7 @@
 					<div class="select_seat_wrap">
                         <h5 class="hidden">좌석선택</h5>
                         <div class="top_txt_info">
-                            <p id="ticketMessageInfo">인원을 선택하세요.</p>
+                            <p id="ticketMessageInfo">좌석 선택 후 결제하기 버튼을 선택하세요.</p>
                         </div>
                         <div id="PersonSeatSelect"> </div>
                         
@@ -275,8 +275,6 @@ $("[name=seatNo]").change((e) => {
 			checkArr.push(seat);
 		})
 	console.log(checkArr);
-	
-	
 	
 	// 결제금액 표시
 	$("#total_step2").html((5000 * $("[name=seatNo]:checked").length).toLocaleString());

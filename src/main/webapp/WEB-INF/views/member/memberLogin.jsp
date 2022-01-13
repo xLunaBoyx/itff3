@@ -52,10 +52,10 @@
 				</div>
 
 <!-- remember-me -->
-<!-- 	<div> -->
-<!-- 		<input type="checkbox" name="remember-me" id="remember-me" class="form-check-input" />   부트스트랩에 있는 클래스 -->
-<!-- 		<label for="remember-me" class="form-check-label">Remember me</label> -->
-<!-- 	</div> -->
+<div style="padding-top:10px; font-size: 16px;">
+	<input type="checkbox" name="remember-me" id="remember-me" class="form-check-input" /> 
+	<label for="remember-me" class="form-check-label" style="position: relative; top: 2px; font-weight: normal;">자동로그인</label> 
+</div>
 
 				<div class="btn_wrap txt-center mt30">
 					<input type="submit" name="imageField" class="btn btn_member_login btn-m" value="로그인" alt="로그인">

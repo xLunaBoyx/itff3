@@ -2370,7 +2370,7 @@ body, input, button, select, textarea {
 .select_num_people_wrap .movie_infor {
     position: relative;
     float: left;
-    width: 270px;
+    width: 315px;
     padding: 30px 0 0 54px;
 }
 .select_num_people_wrap .movie_infor .thm {
@@ -2468,6 +2468,7 @@ img {
     float: right;
     width: 825px;
     margin-top: 36px;
+    padding-left: 70px;
 }
 .select_num_people_wrap .count_people > ul > li:first-child {
     margin-left: 0;

@@ -604,11 +604,8 @@ function selectSeats(scheduleId, movieId) {
 		},
 		complete: function() {
 			$("#reserveStep02").show();
-			$("#step01").removeClass("active");
-			$("#step01").addClass("prev");
-			
-			$("#step02").removeClass("disabled");
-			$("#step02").addClass("active");
+			$("#step01").removeClass("active").addClass("prev");
+			$("#step02").removeClass("disabled").addClass("active");
 			
 			console.log("complete")
 		}	

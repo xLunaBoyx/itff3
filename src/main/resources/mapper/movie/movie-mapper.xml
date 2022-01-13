@@ -126,6 +126,8 @@
 			seat
 		where
 			movie_schedule_id = #{scheduleId}
+		order by
+			seat_no
 	</select>
 	
 	<update id="bookSeats">
