@@ -130,7 +130,7 @@
 									<span><fmt:formatDate value="${mv.regDate}" pattern="yyyy-MM-dd"/></span>
 								</li>
 								<li>
-									<input type="submit" value="예매 취소"/>
+									<input type="submit" class="btn btn-dark" value="예매 취소"/>
 								</li>
 							</ul>
 						</div>
