@@ -35,6 +35,10 @@
 		<intercept-url pattern="/member/memberFindById.do" access="permitAll"/>
 		<intercept-url pattern="/member/memberFindPassword.do" access="permitAll"/>
 		<intercept-url pattern="/member/memberFindByPassword.do" access="permitAll"/>
+		<intercept-url pattern="/member/checkIdDuplicate.do" access="permitAll"/>
+		<intercept-url pattern="/member/checkIdDuplicate2.do" access="permitAll"/>
+		<intercept-url pattern="/member/checkNicknameDuplicate.do" access="permitAll"/>
+		<intercept-url pattern="/member/checkEmailDuplicate.do" access="permitAll"/>
 		<intercept-url pattern="/member/**" access="isAuthenticated()"/>
 		
 		

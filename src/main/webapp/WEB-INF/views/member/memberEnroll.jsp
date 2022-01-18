@@ -37,8 +37,7 @@
 					id="memberEnrollFrm"
 					name="memberEnrollFrm"
 					action="${pageContext.request.contextPath}/member/memberEnroll.do" 
-					class="chk_member"
-					autocomplete="off" 
+					class="chk_member" 
 					method="post">
 					<input type="hidden" name="strBirthdayR"> 
 
@@ -88,8 +87,8 @@
 								<div class="d_tbl">
 									<span class="form_txt"> <input name="password"
 										id="password" type="password" maxlength="30" size="20"
-										 value="" placeholder="비밀번호를 입력해 주세요."
-										style="-webkit-ime-mode: inactive; ime-mode: inactive;" autocomplete="new-password";>
+										value="" placeholder="비밀번호를 입력해 주세요."
+										style="-webkit-ime-mode: inactive; ime-mode: inactive;">
 									</span>
 								</div>
 							</div>
@@ -259,9 +258,9 @@
 							<div class="form_group wid100" style="position:relative;"> <!-- // focus 시 on 클래스 -->
 								<div class="d_tbl">
 									<span class="form_txt">
-										<input name="postCode" id="zipcode" type="text" size="7" maxlength="7" value="" class="inputTxt">
+										<input name="address" id="zipcode" type="text" size="7" maxlength="7" value="" class="inputTxt">
 										&nbsp;			
-										<!-- <input name="address" type="hidden" size="4" maxlength="3"   value="" class="inputTxt"> -->
+										<input name="address" type="hidden" size="4" maxlength="3"   value="" class="inputTxt">
 																				
 										<a href="javascript:findZip();" class="btn btn-s btn_cancel" style="position:absolute; right:5px; top:10px; z-index:1;">우편번호 찾기</a>
 					
@@ -272,8 +271,8 @@
 							<div class="form_group wid100" style="margin-top:5px"> <!-- // focus 시 on 클래스 -->
 								<div class="d_tbl">
 									<span class="form_txt">
-										<input name="address" id="address1" type="text" size="50" required placeholder="주소 입력" class="inputTxt mt10">
-										<input name="detailAddress" id="address2" type="text" size="50" required placeholder="상세주소 입력">
+										<input name="address1" id="address1" type="text" size="50" required placeholder="주소 입력" class="inputTxt mt10">
+										<input name="address2" id="address2" type="text" size="50" required placeholder="상세주소 입력">
 					
 									</span>
 								</div>
@@ -415,7 +414,7 @@ $(nickname).keyup((e) => {
 	const $ok1 = $(".guide1.ok1");
 	const $nicknameValid = $(nicknameValid);
 	
- 	if($nickname.val().length < 2) {
+ 	if($nickname.val().length < 4) {
 		$(".guide1").hide();
 		$nicknameValid.val(0);
 		return;
