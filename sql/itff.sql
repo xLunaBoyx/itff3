@@ -83,8 +83,25 @@ create table persistent_logins (
     token varchar(64) not null,    -- username, password, expire time 값을 hashing처리(단방향 암호화)한 값
     last_used timestamp not null   -- 마지막 접속시간
 );
-
+select * from point_history;
+select count(*) from review_board where member_id = 'leecy';
+select * from ticket_sharing_board;
+select * from review_board;
 select * from persistent_logins;
-
+select * from movie;
 select * from attachment;
-
+select * from question_board;
+update movie set title_eng = 'The thirteenth floor' where title_kor = '13층';
+select * 
+from movie_schedule a left join movie b on a.movie_id = b.movie_id where start_date = '2022-01-09' order by start_date, start_time;
+select * from goods_order;
+select * from movie;
+select * from goods_cart;
+select * from save_notify;
+select * from member;
+select * from authorities;
+delete from authorities where member_id = 'yeonsu5087';
+delete from member where id='yeonsu5087';
+select * from question_board;
+delete from question_board where question_no = 45;
+select * from ticket_sharing_board;

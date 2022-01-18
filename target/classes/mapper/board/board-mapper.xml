@@ -7,7 +7,7 @@
 <select id="selectBoardList" resultType="board">
 	select
     	b.*,
-		(select count(*) from attachment where board_no = b.no) attach_count 
+		(select count(*) from attachment where market_no = b.no) attach_count 
 	from
 		ticket_sharing_board b
 	order by
@@ -20,4 +20,188 @@
 	from
 		ticket_sharing_board
 </select>
+
+<insert id="insertBoard" parameterType="board">
+	insert into
+		ticket_sharing_board(no, member_id, title, content, category)
+	values(
+		seq_ticket_sharing_board_no.nextval,
+		#{memberId},
+		#{title},
+		#{content},
+		#{category}
+	)
+	<selectKey keyProperty="no" resultType="_int" order="AFTER">
+		select
+			seq_ticket_sharing_board_no.currval
+		from
+			dual	
+	</selectKey>
+</insert>
+
+<insert id="insertAttachment">
+	insert into
+		attachment(attach_no, market_no, original_filename, renamed_filename)
+	values(
+		seq_attachment_no.nextval,
+		#{marketNo},
+		#{originalFilename},
+		#{renamedFilename}
+	)
+</insert>
+
+<select id="selectOneBoard" resultType="board">
+	select
+		*
+	from
+		ticket_sharing_board
+	where
+		no = #{no}
+</select>
+
+<select id="selectAttachmentListByBoardNo" resultMap="attachmentVoMap">
+		select
+			*
+		from
+			attachment
+		where
+			market_no = #{market_no}
+</select>
+<resultMap type="attachment" id="attachmentVoMap">
+	<!-- <result column="status" property="status" typeHandler="booleanYnTypeHandler"/> -->
+</resultMap>
+
+<select id="selectOneBoardCollection" resultMap="boardCollectionMap">
+		select 
+		    b.*,
+		    a.*,
+		    a.attach_no,
+		    m.*
+		from
+		    ticket_sharing_board b 
+		    	left join attachment a
+		        	on b.no = a.market_no
+		        join member m
+		        	on b.member_id = m.id 
+		where
+		    b.no = #{no}
+		order by 
+		    b.no desc
+</select>
+<resultMap type="board" id="boardCollectionMap">
+	<id column="no" property="no"/>
+	<result column="title" property="title"/>
+	<result column="member_id" property="memberId"/>
+	<result column="content" property="content"/>
+	<result column="reg_date" property="regDate"/>
+	<result column="read_count" property="readCount"/>
+	<result column="category" property="category"/>
+	<!-- association 은 1:1 관계를 표현 -->
+	<!-- collection 은 1:n 관계를 표현하는데 적합 -->
+	<collection property="attachments" ofType="attachment">
+		<id column="attach_no" property="attachNo"/>
+		<result column="market_no" property="marketNo"/>
+		<result column="original_filename" property="originalFilename"/>
+		<result column="renamed_filename" property="renamedFilename"/>
+		<result column="reg_date" property="regDate"/>
+	</collection>
+</resultMap>
+
+<select id="selectOneAttachment" resultType="attachment">
+	select
+		*
+	from
+		attachment
+	where
+		attach_no = #{no}
+</select>
+
+<update id="updateBoard">
+	update 
+		ticket_sharing_board
+	set
+		category = #{category},
+		title = #{title},
+		content = #{content}
+	where 
+		no = #{no}
+</update>
+
+<delete id="deleteBoardAttachment">
+	delete from attachment
+	where attach_no = #{attachNo}
+</delete>
+
+<delete id="deleteOneBoard">
+	delete from ticket_sharing_board
+	where no = #{no}
+</delete>
+
+<select id="selectCommentList" resultMap="boardCommentCollectionMap">
+	select
+		tc.*,
+		m.*
+		
+	from
+		ticket_sharing_comment tc join member m
+		on tc.writer = m.id
+	where
+		tc.board_no = #{boardNo} start with tc.comment_level = 1 connect by prior no = tc.comment_ref order siblings by tc.reg_date asc
+</select>
+<resultMap type="boardComment" id="boardCommentCollectionMap">
+	<id column="no" property="no"/>
+	<result column="board_no" property="boardNo"/>
+	<result column="writer" property="writer"/>
+	<result column="content" property="content"/>
+	<result column="reg_date" property="regDate"/>
+	<result column="comment_level" property="commentLevel"/>
+	<result column="comment_ref" property="commentRef"/>
+	<association property="member" javaType="member">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="phone" property="phone"/>
+		<result column="email" property="email"/>
+		<result column="birthday" property="birthday"/>
+		<result column="address" property="address"/>
+		<result column="nickname" property="nickname"/>
+		<result column="image" property="image"/>
+		
+	</association>
+</resultMap>
+
+<select id="insertBoardComment">
+	insert into
+		ticket_sharing_comment
+	values(
+		seq_ticket_sharing_comment_no.nextval,
+		#{boardNo},
+		#{writer},
+		#{content},
+		sysdate,
+		#{commentLevel},
+		<if test="commentRef != 0">
+			#{commentRef}
+		</if>
+		<if test="commentRef == 0">
+			null
+		</if>
+	)
+</select>
+
+<delete id="deleteBoardComment">
+	delete from
+		ticket_sharing_comment
+	where
+		no = #{no}
+</delete>
+
+<update id="updateBoardReadCount">
+	update
+		ticket_sharing_board
+	set
+		read_count = read_count + 1
+	where
+		no = #{no}
+</update>
+
 </mapper>

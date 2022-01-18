@@ -77,6 +77,26 @@
 		    log_time desc
 	</select>
 	
+	<select id="findChatLog" resultType="chatLog">
+	  	select
+	    	no,
+	        chat_id,
+	        (select member_id from chat_member where chat_id = CL.chat_id and member_id != 'admin') member_id,
+	        msg,
+	        log_time,
+	        (select count(*) from chat_log where chat_id = CL.chat_id and log_time > (select last_check from chat_member where chat_id = CL.chat_id and member_id = 'admin')) unread_count
+		from (
+		    select
+		        CL.*,
+		        row_number() over(partition by chat_id order by no desc) rnum
+		    from
+		        chat_log CL) CL
+		where
+		    rnum = 1
+		order by
+		    log_time desc
+  </select>
+	
 	<resultMap type="chatLog" id="chatLogMap">
 		<id column="no" property="no"/>
 		<result column="chat_id" property="chatId"/>
@@ -84,5 +104,16 @@
 		<result column="msg" property="msg"/>
 		<result column="log_time" property="logTime"/>
 	</resultMap>
+		  
+  <update id="updateLastCheck">
+  	update
+  		chat_member
+  	set
+  		last_check = #{lastCheck}
+  	where
+  		chat_id = #{chatId}
+  	  and 
+  	  	member_id = #{memberId}
+  </update>
 	
 </mapper>

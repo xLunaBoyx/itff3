@@ -3,11 +3,179 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="movie">
-	<select id="selectMovieList" resultType="movie">
+
+	<resultMap type="movie" id="movieMap">
+		<id column="movie_id" property="movieId"/>
+		<result column="title_kor" property="titleKor"/>
+		<result column="title_eng" property="titleEng"/>
+		<result column="description" property="description"/>
+		<result column="opening_date" property="openingDate"/>
+		<result column="director" property="director"/>
+		<result column="actors" property="actors"/>
+		<result column="genre" property="genre"/>
+		<result column="running_time" property="runningTime"/>
+		<result column="age_limit" property="ageLimit"/>
+		<result column="imgage" property="image"/>
+	</resultMap>
+
+	<resultMap type="movieSchedule" id="movieScheduleMap">
+		<id column="movie_schedule_id" property="movieScheduleId"/>
+		<result column="theater_id" property="theaterId"/>
+		<result column="movie_id" property="movieId"/>
+		<result column="start_date" property="startDate"/>
+		<result column="start_time" property="startTime"/>
+	</resultMap>
+
+
+	<resultMap type="theater" id="theaterMap">
+		<id column="theater_id" property="theaterId"/>
+		<result column="max_seat" property="maxSeat"/>
+	</resultMap>
+	
+	<resultMap type="seat" id="seatMap">
+		<id column="seat_no" property="seatNo"/>
+		<result column="movie_schedule_id" property="movieScheduleId"/>
+		<result column="is_booked" property="isBooked"/>
+	</resultMap>
+	
+	<resultMap type="movieJoin" id="movieJoinMap">
+		<collection property="movie" resultMap="movieMap" />
+		<collection property="movieSchedule" resultMap="movieScheduleMap" />
+		<collection property="theater" resultMap="theaterMap" />
+		<collection property="seat" resultMap="seatMap" />
+	</resultMap>
+	
+	<resultMap type="moviePlus" id="moviePlusMap">
+		<id column="movie_id" property="movieId"/>
+		<result column="title_kor" property="titleKor"/>
+		<result column="title_eng" property="titleEng"/>
+		<result column="description" property="description"/>
+		<result column="opening_date" property="openingDate"/>
+		<result column="director" property="director"/>
+		<result column="actors" property="actors"/>
+		<result column="genre" property="genre"/>
+		<result column="running_time" property="runningTime"/>
+		<result column="age_limit" property="ageLimit"/>
+		<result column="image" property="image"/>
+		<collection property="schedules" resultMap="movieSchedulePlusMap" />
+	</resultMap>
+	
+	<resultMap type="movieSchedulePlus" id="movieSchedulePlusMap">
+		<id column="movie_schedule_id" property="movieScheduleId"/>
+		<result column="theater_id" property="theaterId"/>
+		<result column="movie_id" property="movieId"/>
+		<result column="start_date" property="startDate"/>
+		<result column="start_time" property="startTime"/>
+		<result column="max_seat" property="maxSeat"/>
+		<result column="available_seats" property="availableSeats"/>
+	</resultMap>
+
+
+	<select id="selectTotalMovieList" resultType="movie">
 		select
 			*
 		from
 			movie
 	</select>
 	
+	<select id="selectMovieSchedule" resultMap="moviePlusMap">
+		select
+		   m.*,
+		   s.*,
+		   t.*,
+		   (select count(*) from seat where is_booked = 0 and movie_schedule_id=s.movie_schedule_id group by movie_schedule_id) available_seats
+		from
+		    movie m left join movie_schedule s
+		        on m.movie_id = s.movie_id
+		        join theater t
+		        on s.theater_id = t.theater_id
+		<where>
+			<if test="playdate != null"> 
+		    s.start_date = #{playdate}
+		    </if>
+		    <if test="movieId != null">
+		    and m.movie_id = #{movieId}
+		    </if>
+	    </where>
+		order by 
+			m.movie_id, s.start_time
+	</select>
+	
+	<select id="selectOneSchedule" resultType="movieSchedule">
+		select 
+			*
+		from
+			movie_schedule
+		where
+			movie_schedule_id = #{scheduleId}
+	</select>
+	
+	<select id="selectOneMovie" resultType="movie">
+		select 
+			*
+		from
+			movie
+		where
+			movie_id = #{movieId}
+	</select>
+	
+	<select id="selectSeatList" resultType="seat">
+		select
+			*
+		from
+			seat
+		where
+			movie_schedule_id = #{scheduleId}
+		order by
+			seat_no
+	</select>
+	
+	<update id="bookSeats">
+		update
+			seat
+		set
+			is_booked = 1
+		where
+			seat_no = #{seatNo} and movie_schedule_id = #{scheduleId}
+	</update>
+	
+	<insert id="insertReservation">
+		insert into
+			movie_reservation
+		values(
+			default,
+			#{movieScheduleId},
+			#{memberId},
+			#{movieId},
+			#{titleKor},
+			#{selectedSeat},
+			default,
+			#{startDate},
+			#{startTime},
+			#{amount},
+			#{theaterId},
+			#{count}
+		)
+	</insert>
+	
+	<update id="updatePoint">
+		update
+			member
+		set
+			point = #{point}
+		where
+			id = #{memberId}
+	</update>
+	
+	<select id="selectLatestReservId" resultType="string">
+		select 
+		    movie_reservation_id 
+		from(
+		        select *
+		        from movie_reservation
+		        order by reg_date desc
+		    )
+		where
+		    rownum = 1
+	</select>
 </mapper>
