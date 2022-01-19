@@ -4,21 +4,24 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="member">
 	<insert id="insertMember" parameterType="member">   <!-- parameterType 생략해도 됨 -->
-		insert into
-			member
-		values(
-			#{id},
-			#{password},
-			#{name},
-			#{gender},
-			#{birthday},
-			#{email},
-			#{phone},
-			#{address},
-			#{hobby},
-			default,
-			default
-		)
+	insert into
+		member
+	values(
+		#{id},
+		#{password},
+		#{name},
+		#{phone},
+		#{email},
+		#{birthday},
+		#{address},
+		#{nickname},
+		default,
+		1000,
+		default,
+		'기본 프로필 이미지.png',
+		#{postCode},
+		#{detailAddress}
+	)
 	</insert>
 	
 	<select id="selectOneMember" resultType="member">
@@ -30,41 +33,113 @@
 			id=#{id}
 	</select>
 	
+	<select id="selectOneNickname" resultType="member">
+		select
+			*
+		from
+			member
+		where
+			nickname=#{nickname}
+	</select>
+	
+	<select id="selectOneEmail" resultType="member">
+		select
+			*
+		from
+			member
+		where
+			email=#{email}
+	</select>
+	
 	<update id="updateMember">
 		update
 			member
 		<set>
-			<if test="name != null and name != ''">
-				name = #{name},
-			</if>
-			<if test="birthday != null">
-				birthday = #{birthday},
-			</if>
-			<if test="email != null and email != ''">
-				email = #{email},
+			<if test="password != null and password != ''">
+				password = #{password},
 			</if>
 			<if test="phone != null and phone != ''">
 				phone = #{phone},
 			</if>
-			<if test="address != null and address != ''">
+			<if test="email != null and email != ''">
+				email = #{email},
+			</if>
+			<if test="birthday != null">
+				birthday = #{birthday},
+			</if>
+			<if test="address != null and address != '' and address.equals(',')">
 				address = #{address},
 			</if>
-			<if test="gender != null and gender != ''">
-				gender = #{gender},
+			<if test="nickname != null and nickname != ''">
+				nickname = #{nickname},
 			</if>
-			<if test="hobby != null and hobby != ''">
-				hobby = #{hobby},
-			</if>
-		</set>
+ 		</set>
 		where
 			id = #{id}
 	</update>
 
-<!-- 
-	선생님 풀이. 나도 처음에 이렇게 썼는데, gender 쓰면 뭐가 제대로 안돼서 gender 말고 value를 썼다. 하여튼 지금 여기에 gender쓰는경우 value쓰는경우, 
-	컨트롤러에 defaultValue 쓰는경우 required=false 쓰는경우 다 다르게 나오는데 어쨌든간에 gender는 다 안된다. 근데 선생님은 컨트롤러에서 map을 썼는데
-	map 쓰니까 gender 넣은 이 쿼리가 제대로 된다. 도대체 이유가 뭐야 
--->
+	<select id="selectBoardListByMemberId" resultType="board">
+		select
+    		b.*,
+			(select count(*) from attachment where market_no = b.no) attach_count 
+		from
+			ticket_sharing_board b
+		where
+			member_id = #{id}
+		order by
+   			no desc 
+	</select>
+
+	<select id="selectBoardTotalCount" resultType="_int">
+		select
+			count(*)
+		from
+			ticket_sharing_board
+		where member_id = #{id}
+	</select>
+	
+	
+	<select  id="selectReviewListByMemberId" resultType="review">
+		select
+		    r.*,
+		    m.*,
+		    (select count(*) from attachment where review_no = r.review_no) attach_count,
+		    (select count(*) from review_comment where review_no = r.review_no) rc_count
+		from
+		    review_board r join member m
+		        on r.member_id = m.id
+		where
+			member_id = #{id}
+		order by
+		    review_no desc
+	</select>
+	
+	<resultMap type="review" id="reviewMap">
+		<id column="review_no" property="reviewNo"/>
+		<result column="member_id" property="memberId"/>
+		<result column="review_title" property="reviewTitle"/>
+		<result column="review_content" property="reviewContent"/>
+		<result column="reg_date" property="regDate"/>
+		<result column="read_count" property="readCount"/>
+		<result column="recommend" property="recommend"/>
+		<result column="attach_count" property="attachCount"/>
+		<result column="rc_count" property="reviewCommentCount"/>
+		<association property="member" javaType="member">
+			<id column="id" property="id"/>
+			<result column="nickname" property="nickname"/>
+			<result column="image" property="image"/>
+		</association>	
+	</resultMap>
+	
+	<select id="selectReviewTotalCount" resultType="_int">
+		select
+		    count(*)
+		from
+		    review_board
+		where member_id = #{id}
+	</select>
+	
+	
  	<select id="selectMemberList" resultType="member">
 	  	select
 	  		*
@@ -76,24 +151,182 @@
 	  		</if>
 	  	</where>
 	</select> 
-<!-- 내가 한 방식으로 제대로 작동하는 쿼리 -->
-<!-- 	<select id="selectMemberList" resultType="member" parameterType="string">
+	
+	<update id="insertProfileImage">
+		update
+			member
+		set
+			image = #{originalFilename}
+		where
+			id = #{id}
+	</update>
+	
+	<select id="selectPointListByMemberId" resultType="point">
+		select
+			*
+		from
+			point_history
+		where
+			member_id = #{id}
+		order by
+			history_no desc
+	</select>
+	
+	<select id="selectPointTotalCount" resultType="_int">
+		select
+		    count(*)
+		from
+		    point_history
+		where member_id = #{id}
+	</select>
+	
+<!-- 	<select id="dailyCheckInsert">
+		insert into 
+			dailyCalendar 
+		values
+			(seq_dailyCalendar_no.nextval, #{id}, 'Y', current_date, default)
+	</select>
+ -->	
+	<insert id="insertPointHistory">
+		insert into
+			point_history
+		values 
+			(seq_history_no.nextval, #{id}, #{reason}, #{change}, #{point}, default)
+	</insert>
+	
+	<select id="selectPointListByDate" resultType="point">
+		select
+			*
+		from
+			point_history
+		where
+			member_id = #{id}
+				and
+			reg_date
+				between to_date(#{startDate}, 'yyyy-mm-dd') and to_date(#{endDate}, 'yyyy-mm-dd')+1
+		order by
+			history_no desc	
+	</select>
+	
+	<select id="selectPointTotalCountByDate" resultType="_int" >
+		select
+		    count(*)
+		from
+		    point_history
+		where
+			member_id = #{id}
+				and
+			reg_date
+				between to_date(#{startDate}, 'yyyy-mm-dd') and to_date(#{endDate}, 'yyyy-mm-dd')+1
+	</select>
+	
+	<select id="findMemberId" resultType="member">
+		select 
+		    id
+		from
+		    member
+		where
+		    name = #{name}
+		        and
+		    email = #{email}
+	</select>
+	
+	<select id="findMemberByIdAndEmail" resultType="member">
 		select
 			*
 		from
 			member
-		<where>
-			<if test="gender != null and gender != ''"> 
-			gender = #{gender}
-			</if>
-		</where>
-	</select> -->
+		where
+			id = #{id} 
+				and 
+			email = #{email}
+	</select>
+	
+	<update id="updateMemberPassword">
+		update 
+			member
+		set
+			password = #{encryptedPassword}
+		where
+			id = #{id}
+	</update>
+	
+	<select id="selectCountDailyCalendarByRegDate" resultType="_int">
+		select
+		    count(*)
+		from
+		    dailycalendar
+		where
+		    member_id = #{id}
+		        and
+		    reg_date between to_date(#{checkDate}, 'yyyy-mm-dd') and to_date(#{checkDate}, 'yyyy-mm-dd')+1
+	</select>
+	
+	<select id="selectListCalendarCheckByMemberId" resultType="calendar">
+		select
+			*
+		from
+			dailycalendar
+		where
+			member_id = #{id}
+				and
+			member_check = 'Y'
+	</select>
 
-<!--	<select id="selectMemberList1" resultType="member">
+	<select id="selectMemCheck" resultType="string">
 		select
-			*
+			member_check
 		from
+			dailycalendar
+		where
+			member_id = #{id}
+			
+	</select>
+	
+	<insert id="dailyCheckInsert">
+		insert into 
+			dailycalendar 
+		values
+			(seq_dailycalendar_no.nextval, #{id}, 'Y', #{checkDate}, current_date)
+	</insert>
+	
+	<update id="updateMemberPointByIdAndNewPoint">
+		update
 			member
-	</select> -->
+		set
+			point = #{point}
+		where
+			id = #{id}
+	</update>
+	
+	<select id="selectMemberMovieReservationByMemberId" resultType="membermoviereservation">
+		select  
+		    mr.*,
+		    n.image
+		from 
+		    movie_reservation mr join movie n
+		        on mr.movie_id = n.movie_id
+		where
+		    member_id = #{id}
+	</select>
+	
+	<select id="selectMemberMovieReservationCount" resultType="_int">
+		select
+		    count(*)
+		from
+		    movie_reservation
+		where
+			member_id = #{id}
+		order by
+			start_date desc
+	</select>
+	
+	<delete id="deleteReservationByMovieReservationId">
+		delete from
+			movie_reservation
+		where
+			movie_reservation_id = #{movieReservationId}
+	</delete>
+	
 	
 </mapper>
